@@ -19,7 +19,7 @@ const Index = () => {
       setExtractedEntities(entities);
     } catch (error) {
       console.error("Error extracting entities:", error);
-      setError("An error occurred while extracting entities. Please try again.");
+      setError(error.message || "An error occurred while extracting entities. Please try again.");
     } finally {
       setIsLoading(false);
     }
