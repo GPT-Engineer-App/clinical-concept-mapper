@@ -2,20 +2,24 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { extractEntities } from "../utils/api";
 
 const Index = () => {
   const [inputText, setInputText] = useState("");
   const [extractedEntities, setExtractedEntities] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleExtract = () => {
-    // Placeholder function for entity extraction
-    // This should be replaced with actual API call or processing logic
-    const mockExtractedEntities = [
-      { name: "Headache", type: "Symptom", cui: "C0018681" },
-      { name: "Aspirin", type: "Medication", cui: "C0004057" },
-      { name: "Hypertension", type: "Condition", cui: "C0020538" },
-    ];
-    setExtractedEntities(mockExtractedEntities);
+  const handleExtract = async () => {
+    setIsLoading(true);
+    try {
+      const entities = await extractEntities(inputText);
+      setExtractedEntities(entities);
+    } catch (error) {
+      console.error("Error extracting entities:", error);
+      // TODO: Add error handling UI
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -29,8 +33,8 @@ const Index = () => {
           className="mb-4"
           rows={6}
         />
-        <Button onClick={handleExtract} className="w-full mb-8">
-          Extract Entities
+        <Button onClick={handleExtract} className="w-full mb-8" disabled={isLoading}>
+          {isLoading ? "Extracting..." : "Extract Entities"}
         </Button>
         <div>
           <h2 className="text-2xl font-semibold mb-4">Extracted Entities</h2>
