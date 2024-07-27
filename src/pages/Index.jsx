@@ -3,20 +3,23 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { extractEntities } from "../utils/api";
+import { Loader2 } from "lucide-react";
 
 const Index = () => {
   const [inputText, setInputText] = useState("");
   const [extractedEntities, setExtractedEntities] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleExtract = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const entities = await extractEntities(inputText);
       setExtractedEntities(entities);
     } catch (error) {
       console.error("Error extracting entities:", error);
-      // TODO: Add error handling UI
+      setError("An error occurred while extracting entities. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -34,8 +37,18 @@ const Index = () => {
           rows={6}
         />
         <Button onClick={handleExtract} className="w-full mb-8" disabled={isLoading}>
-          {isLoading ? "Extracting..." : "Extract Entities"}
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Extracting...
+            </>
+          ) : (
+            "Extract Entities"
+          )}
         </Button>
+        {error && (
+          <div className="text-red-500 mb-4">{error}</div>
+        )}
         <div>
           <h2 className="text-2xl font-semibold mb-4">Extracted Entities</h2>
           {extractedEntities.length > 0 ? (
@@ -43,7 +56,7 @@ const Index = () => {
               {extractedEntities.map((entity, index) => (
                 <Card key={index}>
                   <CardHeader>
-                    <CardTitle>{entity.name}</CardTitle>
+                    <CardTitle>{entity.preferredName || entity.name}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p><strong>Type:</strong> {entity.type}</p>
